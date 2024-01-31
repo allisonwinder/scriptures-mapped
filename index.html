@@ -1,0 +1,66 @@
+<!doctype html>
+<html class="no-js" lang="">
+<head>
+    <meta charset="utf-8">
+    <title>The Scriptures, Mapped</title>
+    <meta name="description" content="The Standard Works, Mapped">
+    <meta name="author" content="Allison Winder">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta property="og:title" content="The Scriptures, Mapped">
+    <meta property="og:type" content="">
+    <meta property="og:url" content="">
+    <meta property="og:image" content="">
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+
+    <meta name="theme-color" content="#fafafa">
+
+    <script defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDzdSSzTIl8rJ8SR_vtNztOWZjJgVB_52c&callback=initMap">
+    </script>
+    <script defer src="https://unpkg.com/@googlemaps/markerwithlabel/dist/index.min.js"></script>
+</head>
+<body>
+
+    <header id="header">
+        <div id="crumbs"></div>
+        <div id="centerhead">
+            <div class="title">The Scriptures, Mapped</div>
+            <div class="subtitle">Allison Winder</div>
+        </div>
+    </header>
+    <div id="content">
+        <nav id="scriptures"></nav>
+        <article id="map"></article>
+    </div>
+
+    <script src="js/scriptures.js"></script>
+
+    <script type="text/javascript">
+        /* YOUR INITIALIZATION CODE GOES HERE */
+        function ready(fn) {
+            "use strict;"
+
+            if (document.readyState !== 'loading') {
+                console.log('Already loaded!');
+                fn();
+            } else {
+                console.log('Setting up event listener.');
+                document.addEventListener('DOMContentLoaded', fn);
+            }
+       }
+
+       ready(function () {
+            console.log("Document is now ready.");
+
+            window.onhashchange = function() {
+                // Code to handle hash change
+                // Put the code in the scriptues file with a method that you call here instead of function().
+                console.log("Hash has changed to: " + window.location.hash);
+            }
+       })
+    </script>
+</body>
+</html>

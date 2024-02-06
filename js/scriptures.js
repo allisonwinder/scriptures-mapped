@@ -16,11 +16,16 @@ const Scriptures = (function () {
     const REQUEST_GET = "GET";
     const REQUEST_STATUS_OK = 200;
     const REQUEST_STATUS_ERROR = 400;
+    const URL_BASE = "https://scriptures.byu.edu/mapscrip/";
+    const URL_BOOKS = `${URL_BASE}model/books.php`;
+    const URL_SCRIPTURES = `${URL_BASE}mapgetscrip.php`;
+    const URL_VOLUMES = `${URL_BASE}model/volumes.php`;
 
     /*----------------------------------------------------------------
     *                   PRIVATE VARIABLES
     */
     let books;
+    let mapPins = [];
     let volumes;
     /*----------------------------------------------------------------
     *                   PRIVATE METHOD DECLARATIONS
@@ -30,6 +35,7 @@ const Scriptures = (function () {
     let ajax;
     let bookChapterValid;
     let booksGrid;
+    let clearMapPins;
     let encodedScriptureUrl;
     let getScriptureFailure;
     let getScriptureSuccess;
@@ -37,19 +43,25 @@ const Scriptures = (function () {
     let navigateBook;
     let navigateHome;
     let onHashChanged;
+    let resetMapPins;
     let volumesGridContent;
     let volumeTitle;
+    let extractGeoplaces;
     /*----------------------------------------------------------------
     *                   PRIVATE METHODS
     */
-    ajax = function (url, successCallback, failureCallback) {
+    ajax = function (url, successCallback, failureCallback, skipJsonParse) {
         let request = new XMLHttpRequest();
         request.open('GET', url, true);
 
         request.onload = function () {
             if (request.status >= 200 && request.status < 400) {
                 //Success!
-                let data = JSON.parse(request.responseText);
+                let data = (
+                    skipJsonParse
+                        ? request.response
+                        : JSON.parse(request.response)
+                );
 
                 if (typeof successCallback === "function") {
                     successCallback(data);
@@ -65,8 +77,33 @@ const Scriptures = (function () {
     };
 
     bookChapterValid = function (bookId, chapter) {
-        // NEEDSWORK AND IMPLEMENT THIS
-        return true;
+        const book = books[bookId];
+
+        if (book === undefined){
+            return false;
+        }
+
+        if (chapter === Number.isInteger(book)){
+            //return false;
+        }
+
+        if (chapter === book.numChapters){
+            return true;
+        }
+
+        if (chapter >= 1 && chapter <= book.numChapters ){
+            return true;
+        }
+
+        return false;
+    };
+
+    booksGrid = function (volume) {
+        let gridContent = `<div class="books">`;
+        volume.books.forEach(book => {
+            gridContent += `<a class="btn" id=${book.id} href="#${volume.id}:${book.id}">${book.gridName}</a>`;
+        });
+        return `${gridContent}</div>`;
     };
 
     cacheBooks = function(callback) {
@@ -86,12 +123,63 @@ const Scriptures = (function () {
         }
     };
 
+    clearMapPins = function () {
+        //fix this from video
+        for (const pin of mapPins) {
+            pin.map = null;
+        }
+        mapPins = [];
+    }
+
+    encodedScriptureUrl = function (bookId, chapter, verses, isJst) {
+        if (bookId !== undefined && chapter !== undefined) {
+            let options = "";
+
+            if (verses !== undefined){
+                options += verses;
+            }
+
+            if (isJst !== undefined) {
+                options += "&jst=JST";
+            }
+            return `${URL_SCRIPTURES}?book=${bookId}&chap=${chapter}&verses${options}`;
+        }
+    };
+
+    extractGeoplaces = function () {
+        const uniqueGeoplaces = {};
+        const placelinks = document.querySelectorAll("a[onclick^='showLocation']");
+
+        placelinks.forEach( function (placelink) {
+            const parsedItems = placelink.getAttribute("onclick").split(",");
+            const key = `${parsedItems[2]}|${parsedItems[3]}`;
+            const value = {
+                placename: parsedItems[1].replace(/'/g, ''), //trim single quotes
+                latitude: Number(parsedItems[2]),
+                longitude: Number(parsedItems[3]),
+                viewAltitude: Number(parsedItems[8])
+            };
+            if (uniqueGeoplaces[key] !== undefined) {
+            //we have an existing geoplace
+            // need to go back to video on the 5th to see what he said about this
+            // finish this by appending the placename if needed onto an existing object
+            } else {
+                uniqueGeoplaces[key] = value;
+            }
+        });
+
+        return uniqueGeoplaces;
+
+    };
+
     getScriptureFailure = function () {
         document.getElementById(DIV_SCRIPTURES).innerHTML = "Unable to retrieve chapter contents.";
     };
 
-    getScriptureSuccess = function () {
+    getScriptureSuccess = function (chapterHtml) {
         document.getElementById(DIV_SCRIPTURES).innerHTML = chapterHtml;
+        // Extract the geoplaces method
+        resetMapPins(extractGeoplaces());
     };
 
     navigateBook = function(bookId) {
@@ -100,20 +188,56 @@ const Scriptures = (function () {
     };
 
     navigateChapter = function (bookId, chapter) {
-        // NEEDSWORK AND IMPLEMENT THIS
-        document.getElementById("scriptures").innerHTML = `Display bookId ${bookId} chapter ${chapter}`;
+        ajax(encodedScriptureUrl(bookId, chapter), getScriptureSuccess, getScriptureFailure, true);
     };
 
-     navigateHome = function (volumeId) {
-        // NEEDSWORK finish THIS
-        let html = '';
+    navigateHome = function (volumeId) {
+        document.getElementById("scriptures").innerHTML =
+            `<div id="scripnav">${volumesGridContent(volumeId)}</div>`;
+    };
+
+    volumesGridContent = function (volumeId) {
+
+        let gridContent = '';
+
         volumes.forEach(volume => {
             if (volumeId === undefined || volumeId === volume.id) {
-                html += `<h3>${volume.fullName}</h3>`
+                gridContent += `<div class="volume">${volumeTitle(volume)}</div>`;
+                gridContent += booksGrid(volume);
             }
         });
+        return gridContent;
+    };
 
-        document.getElementById("scriptures").innerHTML = html;
+    volumeTitle = function (volume) {
+        return (`<a href="#${volume.id}"><h5>${volume.fullName}</h5></a>`)
+    };
+
+    resetMapPins = function(geoplaces) {
+        if (!mapIsLoaded) {
+            console.log("calling resetMapPins a bit early");
+            //call this function again in half a second
+            window.setInterval(function () {
+                resetMapPins(geoplaces);
+            }, 500);
+            return;
+        };
+
+        clearMapPins();
+
+        Object.values(geoplaces).forEach(function (geoplace) {
+            const pin = new markerWithLabel.MarkerWithLabel ({
+                position: new google.maps.LatLng(geoplace.latitude, geoplace.longitude),
+                clickable: false,
+                draggable: false,
+                labelAnchor: new google.maps.Point(-21,3),
+                map,
+                labelContent: geoplace.placename,
+                labelClass:"maplabel" //the css class for the label
+                //labelStyle: {opacity} // finish
+            })
+            mapPins.push(pin);
+        });
     };
 
 

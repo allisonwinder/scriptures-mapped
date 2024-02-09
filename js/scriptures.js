@@ -43,6 +43,9 @@ const Scriptures = (function () {
   let navigateChapter;
   let navigateBook;
   let navigateHome;
+  let navigationNextPrevious;
+  let navigateToNextChapter;
+  let navigateToPreviousChapter;
   let navigationBreadcrumbs;
   let onHashChanged;
   let resetMapPins;
@@ -191,9 +194,18 @@ const Scriptures = (function () {
     document.getElementById(DIV_SCRIPTURES).innerHTML = chapterHtml;
     // Extract the geoplaces method
     resetMapPins(extractGeoplaces());
+
+    // Retrieve the volumeId and bookId from the URL hash
+    const ids = location.hash.slice(1).split(":");
+    const volumeId = Number(ids[0]);
+    const bookId = Number(ids[1]);
+
+    // Call navigationNextPrevious to set up navigation links for next and previous chapters
+    navigationNextPrevious(volumeId, bookId, Number(ids[2]));
   };
 
   navigateBook = function (bookId) {
+    document.getElementById("nextPrev").innerHTML = "";
     const book = books[bookId];
     let gridContent = `<div id="scripnav"><div id="volumes"><h2>${
       book.fullName
@@ -211,10 +223,56 @@ const Scriptures = (function () {
   };
 
   navigateHome = function (volumeId) {
+    document.getElementById("nextPrev").innerHTML = "";
     document.getElementById(
       "scriptures"
     ).innerHTML = `<div id="scripnav">${volumesGridContent(volumeId)}</div>`;
     navigationBreadcrumbs(volumeId);
+  };
+
+  navigationNextPrevious = function (volumeId, bookId, chapter) {
+    const book = books[bookId];
+    const nextChapterLink = navigateToNextChapter(volumeId, bookId, chapter);
+    const previousChapterLink = navigateToPreviousChapter(
+      volumeId,
+      bookId,
+      chapter
+    );
+
+    if (location.hash === "") {
+      document.getElementById("nextPrev").innerHTML = "";
+    } else {
+      document.getElementById(
+        "nextPrev"
+      ).innerHTML = `${previousChapterLink} ${nextChapterLink}`;
+    }
+  };
+
+  navigateToNextChapter = function (volumeId, bookId, chapter) {
+    let book = books[bookId];
+    if (chapter < book.numChapters) {
+      // Increment the chapter number
+      let nextChapter = chapter + 1;
+      //let nextBookChapter = books[nextChapter];
+      // Update the URL hash to navigate to the next chapter
+      return `<a href="#${volumeId}:${bookId}:${nextChapter}"><i class= "right arrow">next</i></a>`;
+    } else {
+      // Handle the case when there are no more chapters in the book
+      return "";
+    }
+  };
+
+  navigateToPreviousChapter = function (volumeId, bookId, chapter) {
+    let book = books[bookId];
+    if (chapter > 1) {
+      // Decrement the chapter number
+      const previousChapter = chapter - 1;
+      // Update the URL hash to navigate to the previous chapter
+      return `<a href="#${volumeId}:${bookId}:${previousChapter}"><i class= "left arrow">prev</i></a>`;
+    } else {
+      // Handle the case when there are no more chapters in the book
+      return "";
+    }
   };
 
   //updateMarkers

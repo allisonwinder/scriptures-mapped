@@ -93,6 +93,8 @@ div.subtitle {
   overflow-y: auto;
   border-right: 1px solid #aaa;
   position: relative;
+  padding-left: 30px;
+  padding-right: 30px;
 }
 
 #scripnav {
@@ -225,6 +227,10 @@ div.navheading {
   justify-content: center;
 }
 
+.waves-effect.waves-custom.waves-ripple {
+  background-color: hsla(0,0%,100%,.65)
+}
+
 #scriptures ul.versesblock {
   margin: 0;
   line-height: auto;
@@ -277,4 +283,22 @@ span.verse {
 
 li.match {
   background-color: #ffffcc;
+}
+
+.arrow {
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  display: inline-block;
+  padding: 3px;
+  margin-right:6px;
+}
+
+.right {
+  transform: rotate(-45deg);
+  -webkit-transform: rotate(-45deg);
+}
+
+.left {
+  transform: rotate(135deg);
+  -webkit-transform: rotate(135deg);
 }

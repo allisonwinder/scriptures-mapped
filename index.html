@@ -49,8 +49,8 @@
             //const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
 
             map = new Map(document.getElementById("map"), {
-                zoom: 4,
-                center: {lat: 40, lng: -111},
+                zoom: 8, // Adjust the zoom level as needed
+                center: { lat: 31.7683, lng: 35.2137 }, // Coordinates for Jerusalem
                 mapTypeId: "terrain",
                 mapTypeControl: false,
                 streetViewControl: false,
@@ -82,6 +82,21 @@
             Scriptures.init(function (){
                 window.addEventListener("hashchange", Scriptures.onHashChanged);
                 Scriptures.onHashChanged();
+                window.showLocation = (
+                    geotagId, 
+                    placename, 
+                    latitude, 
+                    longitude, 
+                    viewLatitude, 
+                    viewLongitude, 
+                    viewTilt, 
+                    viewRoll, 
+                    viewAltitude, 
+                    viewHeading
+                );
+                //Scriptures.showLocation(latitude, longitude, viewAltitude)
+                map.panTo(new google.maps.LatLng(latitude, longitude));
+                map.setZoom(Math.round(viewAltitude/450));
             });
 
         });

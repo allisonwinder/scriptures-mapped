@@ -83,7 +83,7 @@
             Scriptures.init(function (){
                 window.addEventListener("hashchange", Scriptures.onHashChanged);
                 Scriptures.onHashChanged();
-                window.showLocation = (
+                window.showLocation = function (
                     geotagId, 
                     placename, 
                     latitude, 
@@ -94,11 +94,18 @@
                     viewRoll, 
                     viewAltitude, 
                     viewHeading
-                );
+            ){
                 //Scriptures.showLocation(latitude, longitude, viewAltitude)
                 map.panTo(new google.maps.LatLng(latitude, longitude));
-                map.setZoom(Math.round(viewAltitude/450));
-            });
+                if (viewAltitude === 5000) {
+                    map.setZoom(Math.round(viewAltitude/450));
+                } else {
+                    zoomLevel = Math.log2(591657550.5 / viewAltitude) - 2;
+                    map.setZoom(zoomLevel);
+                }
+                
+                
+            }});
 
         });
     </script>

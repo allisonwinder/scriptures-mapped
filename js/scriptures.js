@@ -165,20 +165,27 @@ const Scriptures = (function () {
     const placelinks = document.querySelectorAll("a[onclick^='showLocation']");
 
     placelinks.forEach(function (placelink) {
-      const parsedItems = placelink.getAttribute("onclick").split(",");
-      const key = `${parsedItems[2]}|${parsedItems[3]}`;
-      const value = {
-        placename: parsedItems[1].replace(/'/g, ""),
-        latitude: Number(parsedItems[2]),
-        longitude: Number(parsedItems[3]),
-        viewAltitude: Number(parsedItems[8]),
-      };
-      if (uniqueGeoplaces[key] !== undefined) {
-        //we have an existing geoplace
-        // need to go back to video on the 5th to see what he said about this
-        // finish this by appending the placename if needed onto an existing object
-      } else {
-        uniqueGeoplaces[key] = value;
+      const onclickAttr = placelink.getAttribute("onclick");
+      const regex =
+        /\((.*),'(.*)',(.*),(.*),(.*),(.*),(.*),(.*),(.*),(.*),'(.*)'\)/;
+      const match = onclickAttr.match(regex);
+
+      if (match) {
+        const [, , placename, latitude, longitude, , , , , ,] = match;
+        const key = `${latitude}|${longitude}`;
+        const value = {
+          placename: placename,
+          latitude: Number(latitude),
+          longitude: Number(longitude),
+          viewAltitude: Number(match[8]), // Assuming viewAltitude is the 8th parameter
+        };
+
+        if (uniqueGeoplaces[key] !== undefined) {
+          // Append the placename to an existing object if needed
+          uniqueGeoplaces[key].placename += `, ${placename}`;
+        } else {
+          uniqueGeoplaces[key] = value;
+        }
       }
     });
 

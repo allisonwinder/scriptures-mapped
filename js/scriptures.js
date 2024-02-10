@@ -98,6 +98,10 @@ const Scriptures = (function () {
       return true;
     }
 
+    if (book !== undefined && book.numChapters === 0) {
+      return true;
+    }
+
     return false;
   };
 
@@ -128,10 +132,14 @@ const Scriptures = (function () {
 
   chaptersGrid = function (bookId) {
     let chapterGrid = "";
-    const book = books[bookId];
+    let book = books[bookId];
     // Generate grid of chapters
-    for (let i = 1; i <= book.numChapters; i++) {
-      chapterGrid += `<a class="chapter btn" id="${i}" href="#${book.parentBookId}:${bookId}:${i}">Chapter ${i}</a></br>`;
+    if (book.numChapters > 0) {
+      for (let i = 1; i <= book.numChapters; i++) {
+        chapterGrid += `<a class="chapter btn" id="${i}" href="#${book.parentBookId}:${bookId}:${i}">Chapter ${i}</a></br>`;
+      }
+    } else {
+      navigateChapter(bookId);
     }
     navigationBreadcrumbs(book.parentBookId, bookId);
     return chapterGrid;
@@ -158,6 +166,18 @@ const Scriptures = (function () {
       }
       return `${URL_SCRIPTURES}?book=${bookId}&chap=${chapter}&verses${options}`;
     }
+    if (bookId !== undefined && chapter === undefined) {
+      let options = "";
+
+      if (verses !== undefined) {
+        options += verses;
+      }
+
+      if (isJst !== undefined) {
+        options += "&jst=JST";
+      }
+      return `${URL_SCRIPTURES}?book=${bookId}&chap=0&verses${options}`;
+    }
   };
 
   extractGeoplaces = function () {
@@ -181,8 +201,11 @@ const Scriptures = (function () {
         };
 
         if (uniqueGeoplaces[key] !== undefined) {
+          let uniqueKey = uniqueGeoplaces[key].placename;
+          if (!uniqueKey.includes(placename)) {
+            uniqueGeoplaces[key].placename += `, ${placename}`;
+          }
           // Append the placename to an existing object if needed
-          uniqueGeoplaces[key].placename += `, ${placename}`;
         } else {
           uniqueGeoplaces[key] = value;
         }

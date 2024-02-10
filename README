@@ -1,7 +1,9 @@
-I have learned how to interact with an API, which I did not know how to interact with one super well before.
+I have learned how to interact with an API, which I did not know how to interact with one super well before. I think it's super cool how the API can include html that can be used in your code. I had no idea that was something that could happen, so it was very informative to interact with something like that. The use of showLocation was especially interesting to me because it was basically a function written into the API that I got to interact with. I had a lot of fun figuring out how to use it.
 
 I learned the importance of keeping your code organized so that it is readable to you and to other people
 who might read it. I tried to keep my functions in alphabetical order to help keep my code more readable to
 other users.
 
-I also learned that it is important to validate code. I don't think I always did the best job of making sure the code that comes in is able to 
+I also learned that it is important to validate code. I don't think I always did the best job of making sure the code that comes in is valid; however, I did think about it more than I have before and I think it leads to less issues with the code as well as helping you think through all the cases that a web page might be accessed and could be broken.
+
+Honestly, I never thought I would ever be able to create a website like this, so I enjoyed seeing that I can (with some significant help).

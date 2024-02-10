@@ -87,7 +87,7 @@ const Scriptures = (function () {
     }
 
     if (chapter === Number.isInteger(book)) {
-      //return false;
+      //nothing
     }
 
     if (chapter === book.numChapters) {
@@ -146,7 +146,6 @@ const Scriptures = (function () {
   };
 
   clearMapPins = function () {
-    //fix this from video
     for (const pin of mapPins) {
       pin.setMap(null);
     }
@@ -283,7 +282,6 @@ const Scriptures = (function () {
     if (chapter < book.numChapters) {
       // Increment the chapter number
       let nextChapter = chapter + 1;
-      //let nextBookChapter = books[nextChapter];
       // Update the URL hash to navigate to the next chapter
       return `<a href="#${volumeId}:${bookId}:${nextChapter}"><i class= "right arrow">next</i></a>`;
     } else {
@@ -304,8 +302,6 @@ const Scriptures = (function () {
       return "";
     }
   };
-
-  //updateMarkers
 
   navigationBreadcrumbs = function (volumeId, bookId, chapter) {
     if (volumeId === undefined) {
@@ -424,7 +420,6 @@ const Scriptures = (function () {
 
       if (volumes.map((volume) => volume.id).includes(volumeId)) {
         navigateHome(volumeId);
-        //navigationBreadcrumbs(volumeId);
       } else {
         navigateHome();
       }
@@ -435,7 +430,6 @@ const Scriptures = (function () {
       } else {
         if (ids.length == 2) {
           navigateBook(bookId);
-          //navigationBreadcrumbs(books.parentBookId, bookId);
         } else {
           const volumeId = Number(ids[0]);
           const chapter = Number(ids[2]);

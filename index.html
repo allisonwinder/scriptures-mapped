@@ -40,14 +40,12 @@
     <script defer src="js/scriptures.js"></script>
 
     <script type="text/javascript">
-        /* YOUR INITIALIZATION CODE GOES HERE */
          // Initialize and add the map
         let map;
         let mapIsLoaded = false;
 
         async function initMap() {
             const { Map } = await google.maps.importLibrary("maps");
-            //const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
 
             map = new Map(document.getElementById("map"), {
                 zoom: 8, // Adjust the zoom level as needed
@@ -71,10 +69,8 @@
             "use strict;"
 
             if (document.readyState !== 'loading') {
-                //console.log('Already loaded!');
                 readyListener();
             } else {
-                //console.log('Setting up event listener.');
                 document.addEventListener('DOMContentLoaded', readyListener);
             }
        }
@@ -95,7 +91,6 @@
                     viewAltitude, 
                     viewHeading
             ){
-                //Scriptures.showLocation(latitude, longitude, viewAltitude)
                 map.panTo(new google.maps.LatLng(latitude, longitude));
                 if (viewAltitude === 5000) {
                     map.setZoom(Math.round(viewAltitude/450));
